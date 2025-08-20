@@ -1,11 +1,15 @@
 name: Deploy to GitHub Pages
 on:
   push:
-    branches: [main]   # 如果你的預設分支是 master，改成 [master]
+    branches: [main]   # 預設分支若是 master 就改成 [master]
 permissions:
   contents: read
   pages: write
   id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm ci
+      - run: npm install
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -24,7 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
